@@ -7,11 +7,14 @@ volumes:
 services:
   db:
     image: postgres:13
+    env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
   backend:
     build: ./backend/
     env_file: .env
+    volumes:
+      - static:/backend_static
   frontend:
     env_file: .env
     build: ./frontend/
@@ -19,9 +22,17 @@ services:
     volumes:
       - static:/static
   gateway:
-    build: ./nginx/
+    build: ./gateway/
     env_file: .env
     ports:
       - 9000:80
     volumes:
       - static:/static
+  admin:
+    image: admin/admin
+    ports:
+      - "9000:80"
+    environment:
+      - PMA_HOST=db
+    depends_on:
+      - db
